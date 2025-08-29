@@ -1,0 +1,61 @@
+<!-- 1_index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Anonymous Chat</title>
+  <link rel="stylesheet" href="/style.css" />
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div id="chat-container">
+    <h2>Anonymous Chat</h2>
+    <div id="messages"></div>
+    <input id="messageInput" type="text" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    // Firebase config from your Firebase Console
+    const firebaseConfig = {
+      apiKey: "AIzaSyAhF-2yoJIvQ619UHN_cc7cYdAUG8eH1r8",
+      authDomain: "chat-app-b19ef.firebaseapp.com",
+      projectId: "chat-app-b19ef",
+      storageBucket: "chat-app-b19ef.appspot.com",
+      messagingSenderId: "308122778733",
+      appId: "1:308122778733:web:4b496e8a85adc5bc4b9364",
+      measurementId: "G-LCPQ08LRLV"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const messagesDiv = document.getElementById("messages");
+
+    // Listen for new messages
+    db.collection("messages").orderBy("timestamp")
+      .onSnapshot(snapshot => {
+        messagesDiv.innerHTML = "";
+        snapshot.forEach(doc => {
+          const p = document.createElement("p");
+          p.textContent = doc.data().text;
+          messagesDiv.appendChild(p);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      });
+
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const msg = input.value;
+      if (msg.trim()) {
+        db.collection("messages").add({
+          text: msg,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        input.value = "";
+      }
+    }
+  </script>
+</body>
+</html>
